@@ -206,7 +206,7 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
       <main className="flex-1 min-w-0 px-5 sm:px-8 md:px-12 py-8 md:py-10 max-w-[1280px]">
         <div key={topic.id + role.id} className="fade-in">
           <div className="text-[11px] uppercase tracking-[0.22em] ink3 mb-3">{topic.tagline}</div>
-          <h1 className="font-display text-[30px] sm:text-[38px] md:text-[54px] leading-[1.02] grad-text max-w-3xl break-words">
+          <h1 className="font-display text-[30px] sm:text-[38px] md:text-[54px] leading-[1.1] pb-1 grad-text max-w-3xl break-words">
             {topic.title}
           </h1>
           <p className="mt-5 text-[17px] ink2 max-w-2xl leading-relaxed">{topic.hero}</p>
