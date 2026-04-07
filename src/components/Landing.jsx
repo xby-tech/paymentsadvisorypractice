@@ -86,6 +86,9 @@ export default function Landing({ roleId, setRoleId, onEnter }) {
           <div className="text-[11px] ink3 italic">
             What was once a $400k consulting engagement is now a sixty-second interaction.
           </div>
+          <div className="text-[10.5px] ink3 mt-3 tracking-[0.15em] uppercase">
+            Built solo. Domain expertise meets AI tooling.
+          </div>
         </div>
       </div>
     </div>

@@ -1,34 +1,94 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { TOPICS, ROLES, ARCHETYPES, KPIS } from '../data.js';
 import { computeOutcomes, fmtVal } from '../engine.js';
 import SoWhatPanel from './SoWhatPanel.jsx';
 
+// Topic character assignment for nav tags
+const TOPIC_CHARACTER = {
+  agentic: 'Opportunity',
+  payto: 'Structural shift',
+  wallets: 'Threat',
+  psra: 'Structural shift',
+  waterbed: 'Threat',
+  xborder: 'Opportunity',
+  tokenisation: 'Opportunity',
+  bnpl: 'Threat',
+  cdr: 'Structural shift',
+  fraudai: 'Opportunity',
+};
+const CHARACTER_STYLE = {
+  Opportunity: { color: '#7cf2c8', bg: 'rgba(124,242,200,0.08)', border: 'rgba(124,242,200,0.3)' },
+  Threat: { color: '#ff6b8a', bg: 'rgba(255,107,138,0.08)', border: 'rgba(255,107,138,0.3)' },
+  'Structural shift': { color: '#5ec2ff', bg: 'rgba(94,194,255,0.08)', border: 'rgba(94,194,255,0.3)' },
+};
+
+function CharacterTag({ kind, size = 'sm' }) {
+  const s = CHARACTER_STYLE[kind];
+  if (!s) return null;
+  const pad = size === 'lg' ? 'px-2.5 py-1 text-[10px]' : 'px-2 py-0.5 text-[9px]';
+  return (
+    <span
+      className={`inline-block rounded-full uppercase tracking-[0.15em] font-medium ${pad}`}
+      style={{ color: s.color, background: s.bg, border: `1px solid ${s.border}` }}
+    >
+      {kind}
+    </span>
+  );
+}
+
 function Brief({ label, body, accent }) {
   return (
-    <div className="rounded-2xl p-5 border hairline bg-[rgba(255,255,255,0.018)]">
-      <div className="flex items-center gap-2 mb-3">
+    <div className="brief-card rounded-2xl p-6 border hairline">
+      <div className="flex items-center gap-2 mb-4">
         <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent }}></span>
         <div className="text-[10px] uppercase tracking-[0.2em] ink3">{label}</div>
       </div>
-      <p className="text-[13.5px] leading-relaxed text-white/90">{body}</p>
+      <p className="text-[14px] leading-relaxed text-white/90">{body}</p>
     </div>
   );
 }
 
-function BigSlider({ v, value, onChange }) {
+function BigSlider({ v, value, onChange, pulse }) {
   const delta = value - v.default;
   const direction = Math.abs(delta) < 1e-6 ? 'baseline' : delta > 0 ? 'up' : 'down';
   const color = direction === 'up' ? '#7cf2c8' : direction === 'down' ? '#ff6b8a' : '#9aa1ad';
+  const [showInfo, setShowInfo] = useState(false);
   return (
-    <div className="big-slider">
+    <div className={'big-slider relative ' + (pulse ? 'first-slider-pulse' : '')}>
       <div className="flex items-baseline justify-between gap-3">
-        <div className="text-[13px] text-white/90 leading-snug max-w-[70%]">{v.name}</div>
+        <div className="flex items-start gap-2 max-w-[70%]">
+          <div className="text-[13px] text-white/90 leading-snug">{v.name}</div>
+          {v.source && (
+            <button
+              type="button"
+              onClick={() => setShowInfo((s) => !s)}
+              className="info-dot shrink-0 mt-0.5"
+              aria-label="Show source"
+            >
+              i
+            </button>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           <div className="num-tick text-[26px] font-display tracking-tight" style={{ color }}>
             {fmtVal(v, value)}
           </div>
         </div>
       </div>
+      {showInfo && v.source && (
+        <div className="source-pop">
+          <div className="text-[9.5px] uppercase tracking-[0.18em] ink3 mb-1">Source</div>
+          <div className="text-[11.5px] text-white/90 leading-relaxed">{v.source}</div>
+          <button
+            type="button"
+            onClick={() => setShowInfo(false)}
+            className="absolute top-2 right-3 ink3 hover:text-white text-[13px]"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+      )}
       <input
         type="range"
         min={v.min}
@@ -38,11 +98,12 @@ function BigSlider({ v, value, onChange }) {
         onChange={(e) => onChange(Number(e.target.value))}
         className="mt-3"
       />
-      <div className="flex items-center justify-between mt-2 text-[10.5px] ink3">
-        <div>
-          baseline · <span className="ink2">{fmtVal(v, v.default)}</span>
+      <div className="flex items-center justify-between mt-2 text-[11.5px]">
+        <div className="ink2">
+          <span className="ink3 uppercase tracking-[0.12em] text-[9.5px] mr-1.5">baseline</span>
+          <span className="text-white/90 font-medium">{fmtVal(v, v.default)}</span>
         </div>
-        <div>
+        <div className="ink3 text-[10.5px]">
           impact weight · <span className="ink2">{Math.round(v.weight * 100)}</span>
         </div>
       </div>
@@ -179,6 +240,9 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
             >
               <div className="rail-num">{String(i + 1).padStart(2, '0')}</div>
               <div className="text-[13px] mt-1 leading-snug text-white/95">{t.title}</div>
+              <div className="mt-2">
+                <CharacterTag kind={TOPIC_CHARACTER[t.id]} />
+              </div>
             </div>
           ))}
         </nav>
@@ -205,7 +269,10 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
 
       <main className="flex-1 min-w-0 px-5 sm:px-8 md:px-12 py-8 md:py-10 max-w-[1280px]">
         <div key={topic.id + role.id} className="fade-in">
-          <div className="text-[11px] uppercase tracking-[0.22em] ink3 mb-3">{topic.tagline}</div>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="text-[11px] uppercase tracking-[0.22em] ink3">{topic.tagline}</div>
+            <CharacterTag kind={TOPIC_CHARACTER[topic.id]} size="lg" />
+          </div>
           <h1 className="font-display text-[30px] sm:text-[38px] md:text-[54px] leading-[1.1] pb-1 grad-text max-w-3xl break-words">
             {topic.title}
           </h1>
@@ -216,6 +283,11 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
           <Brief label="Opportunity" body={briefing.opportunity} accent="#7cf2c8" />
           <Brief label="Problem" body={briefing.problem} accent="#ff6b8a" />
           <Brief label="Context" body={briefing.context} accent="#5ec2ff" />
+        </div>
+
+        <div className="mt-4 text-[10.5px] ink3 italic flex items-center gap-2">
+          <span className="w-1 h-1 rounded-full bg-[rgba(255,255,255,0.25)]"></span>
+          Cross-topic ripple effects, coming soon
         </div>
 
         <section className="mt-12">
@@ -232,8 +304,14 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
             </button>
           </div>
           <div className="grid md:grid-cols-2 gap-x-10 gap-y-7">
-            {topic.variables.map((v) => (
-              <BigSlider key={v.id} v={v} value={sliders[topic.id][v.id]} onChange={(val) => setSlider(v.id, val)} />
+            {topic.variables.map((v, i) => (
+              <BigSlider
+                key={v.id}
+                v={v}
+                value={sliders[topic.id][v.id]}
+                onChange={(val) => setSlider(v.id, val)}
+                pulse={i === 0}
+              />
             ))}
           </div>
         </section>

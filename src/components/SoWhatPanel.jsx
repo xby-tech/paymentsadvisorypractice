@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
-// Stable cache across renders/components for the session
 const CACHE = new Map();
 
 function hashInputs(topicId, roleId, sliders) {
@@ -10,7 +9,6 @@ function hashInputs(topicId, roleId, sliders) {
 }
 
 function buildPayload(topic, role, sliders, result) {
-  // Snapshot the state into something the LLM can reason over without bloating the prompt
   const vars = topic.variables.map((v) => ({
     name: v.name,
     unit: v.unit,
@@ -49,20 +47,36 @@ async function fetchPlan(payload) {
   return res.json();
 }
 
-function HorizonPlanCard({ label, sub, plan, loading }) {
-  if (loading || !plan) {
-    return (
-      <div className="sowhat-card">
-        <div className="text-[10px] uppercase tracking-[0.2em] ink3">{label}</div>
-        <div className="font-mono text-[10px] ink3 mt-0.5">{sub}</div>
-        <div className="mt-5 shimmer h-5 w-3/4"></div>
-        <div className="mt-3 shimmer h-3 w-full"></div>
-        <div className="mt-2 shimmer h-3 w-5/6"></div>
-        <div className="mt-2 shimmer h-3 w-4/6"></div>
-        <div className="mt-5 shimmer h-3 w-full"></div>
+function GhostCard({ label, sub }) {
+  return (
+    <div className="sowhat-card sowhat-ghost">
+      <div className="text-[10px] uppercase tracking-[0.2em] ink3">{label}</div>
+      <div className="font-mono text-[10px] ink3 mt-0.5">{sub}</div>
+      <div className="mt-8 flex flex-col items-center justify-center py-6 opacity-50">
+        <div className="w-8 h-8 rounded-full border hairline flex items-center justify-center mb-3">
+          <span className="text-[14px] ink3">◇</span>
+        </div>
+        <div className="text-[10.5px] ink3 uppercase tracking-[0.15em]">Awaiting brief</div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+function ShimmerCard({ label, sub }) {
+  return (
+    <div className="sowhat-card">
+      <div className="text-[10px] uppercase tracking-[0.2em] ink3">{label}</div>
+      <div className="font-mono text-[10px] ink3 mt-0.5">{sub}</div>
+      <div className="mt-5 shimmer h-5 w-3/4"></div>
+      <div className="mt-3 shimmer h-3 w-full"></div>
+      <div className="mt-2 shimmer h-3 w-5/6"></div>
+      <div className="mt-2 shimmer h-3 w-4/6"></div>
+      <div className="mt-5 shimmer h-3 w-full"></div>
+    </div>
+  );
+}
+
+function HorizonPlanCard({ label, sub, plan }) {
   return (
     <div className="sowhat-card">
       <div className="flex items-center justify-between">
@@ -90,19 +104,28 @@ function HorizonPlanCard({ label, sub, plan, loading }) {
 
 export default function SoWhatPanel({ topic, role, sliders, result }) {
   const inputHash = useMemo(() => hashInputs(topic.id, role.id, sliders), [topic, role, sliders]);
-  const lastFetchedHash = useRef(null);
   const [plan, setPlan] = useState(null);
+  const [planHash, setPlanHash] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Detect "stale": sliders changed since last successful fetch (topic/role unchanged)
-  const stale = plan && lastFetchedHash.current && lastFetchedHash.current !== inputHash;
+  // Reset displayed plan whenever topic or role changes. Pure on-demand, no auto-fetch.
+  const topicRoleKey = `${topic.id}::${role.id}`;
+  const lastTopicRole = React.useRef(null);
+  if (lastTopicRole.current !== topicRoleKey) {
+    lastTopicRole.current = topicRoleKey;
+    if (plan !== null) setPlan(null);
+    if (error !== null) setError(null);
+    if (planHash !== null) setPlanHash(null);
+  }
+
+  const stale = plan && planHash && planHash !== inputHash;
 
   async function generate() {
     const hash = inputHash;
     if (CACHE.has(hash)) {
       setPlan(CACHE.get(hash));
-      lastFetchedHash.current = hash;
+      setPlanHash(hash);
       setError(null);
       return;
     }
@@ -113,7 +136,7 @@ export default function SoWhatPanel({ topic, role, sliders, result }) {
       const data = await fetchPlan(payload);
       CACHE.set(hash, data);
       setPlan(data);
-      lastFetchedHash.current = hash;
+      setPlanHash(hash);
     } catch (e) {
       setError(String(e.message || e));
     } finally {
@@ -121,21 +144,11 @@ export default function SoWhatPanel({ topic, role, sliders, result }) {
     }
   }
 
-  // Auto-generate the FIRST time you land on a (topic, role) pairing
-  const topicRoleKey = `${topic.id}::${role.id}`;
-  const lastTopicRole = useRef(null);
-  useEffect(() => {
-    if (lastTopicRole.current !== topicRoleKey) {
-      lastTopicRole.current = topicRoleKey;
-      setPlan(null);
-      setError(null);
-      generate();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topicRoleKey]);
+  const hasPlan = !!plan;
+  const showShimmer = loading && !plan;
 
   return (
-    <section className="mt-16">
+    <section className="sowhat-section mt-16">
       <div className="flex items-baseline justify-between mb-6 gap-4 flex-wrap">
         <div>
           <div className="text-[10px] uppercase tracking-[0.22em] ink3">So what, your move</div>
@@ -145,15 +158,20 @@ export default function SoWhatPanel({ topic, role, sliders, result }) {
           {stale && (
             <span className="text-[10.5px] uppercase tracking-[0.18em] text-[#ffb86b] flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#ffb86b] animate-pulse"></span>
-              Plan stale
+              Scenario changed
             </span>
           )}
           <button
             onClick={generate}
             disabled={loading}
-            className="text-[11px] px-4 py-2 rounded-full chip hover:text-white transition disabled:opacity-40"
+            className={
+              'text-[12px] px-5 py-2.5 rounded-full transition disabled:opacity-40 ' +
+              (hasPlan
+                ? 'chip hover:text-white'
+                : 'font-medium text-[#08090b] bg-gradient-to-r from-[#7cf2c8] to-[#5ec2ff] hover:shadow-[0_10px_30px_-10px_rgba(124,242,200,0.6)]')
+            }
           >
-            {loading ? 'Generating…' : stale ? 'Refresh plan →' : 'Regenerate'}
+            {loading ? 'Generating…' : hasPlan ? (stale ? 'Refresh plan →' : 'Regenerate') : 'Generate strategic brief →'}
           </button>
         </div>
       </div>
@@ -162,13 +180,29 @@ export default function SoWhatPanel({ topic, role, sliders, result }) {
           Couldn't generate plan: {error}
         </div>
       )}
-      <div className={'grid md:grid-cols-3 gap-5 ' + (stale ? 'opacity-60' : '')}>
-        <HorizonPlanCard label="Short term" sub="0 to 12 months" plan={plan?.short} loading={loading && !plan} />
-        <HorizonPlanCard label="Medium term" sub="1 to 3 years" plan={plan?.med} loading={loading && !plan} />
-        <HorizonPlanCard label="Long term" sub="3 to 7 years" plan={plan?.long} loading={loading && !plan} />
+      <div className={'grid md:grid-cols-3 gap-5 ' + (stale ? 'opacity-70' : '')}>
+        {showShimmer ? (
+          <>
+            <ShimmerCard label="Short term" sub="0 to 12 months" />
+            <ShimmerCard label="Medium term" sub="1 to 3 years" />
+            <ShimmerCard label="Long term" sub="3 to 7 years" />
+          </>
+        ) : hasPlan ? (
+          <>
+            <HorizonPlanCard label="Short term" sub="0 to 12 months" plan={plan.short} />
+            <HorizonPlanCard label="Medium term" sub="1 to 3 years" plan={plan.med} />
+            <HorizonPlanCard label="Long term" sub="3 to 7 years" plan={plan.long} />
+          </>
+        ) : (
+          <>
+            <GhostCard label="Short term" sub="0 to 12 months" />
+            <GhostCard label="Medium term" sub="1 to 3 years" />
+            <GhostCard label="Long term" sub="3 to 7 years" />
+          </>
+        )}
       </div>
       <div className="mt-3 text-[10.5px] ink3">
-        Generated by Grok (grok-4-1-fast) from your current scenario state. Treat as a strategy starting point, not advice.
+        Generated on demand by Grok (grok-4-1-fast) from your current scenario state. Treat as a strategy starting point, not advice.
       </div>
     </section>
   );
