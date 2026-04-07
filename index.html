@@ -753,6 +753,9 @@ function summarize(result){
     const vals = Object.values(result[h]);
     const sum = vals.reduce((a,b)=>a+b,0);
     return { horizon:h, score: sum };
+  });
+}
+
 function App(){
   const [stage, setStage] = useState("landing"); // "landing" | "app"
   const [roleId, setRoleId] = useState("large_fi");
