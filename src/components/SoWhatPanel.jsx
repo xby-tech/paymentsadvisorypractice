@@ -95,7 +95,7 @@ export default function SoWhatPanel({ topic, role, sliders, result }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Detect "stale" — sliders changed since last successful fetch (but topic/role unchanged)
+  // Detect "stale": sliders changed since last successful fetch (topic/role unchanged)
   const stale = plan && lastFetchedHash.current && lastFetchedHash.current !== inputHash;
 
   async function generate() {
@@ -138,7 +138,7 @@ export default function SoWhatPanel({ topic, role, sliders, result }) {
     <section className="mt-16">
       <div className="flex items-baseline justify-between mb-6 gap-4 flex-wrap">
         <div>
-          <div className="text-[10px] uppercase tracking-[0.22em] ink3">So what — your move</div>
+          <div className="text-[10px] uppercase tracking-[0.22em] ink3">So what, your move</div>
           <h2 className="font-display text-[26px] mt-1">The actionable play</h2>
         </div>
         <div className="flex items-center gap-3">
