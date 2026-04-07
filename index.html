@@ -768,7 +768,7 @@ function App(){
   });
 
   if (stage === "landing") {
-    return <Landing roleId={roleId} setRoleId={setRoleId} onEnter={()=>setStage("app")} />;
+    return <Landing roleId={roleId} setRoleId={setRoleId} onEnter={()=>{setStage("app");window.scrollTo(0,0);}} />;
   }
   return <Dashboard
     roleId={roleId} setRoleId={setRoleId}
