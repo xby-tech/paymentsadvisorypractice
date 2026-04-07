@@ -175,7 +175,7 @@ function HorizonCard({ label, sub, score, movers }) {
   );
 }
 
-export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, sliders, setSliders, onHome }) {
+export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, sliders, setSliders, onHome, onLegal }) {
   const topic = TOPICS.find((t) => t.id === topicId);
   const role = ROLES.find((r) => r.id === roleId);
   const archetype = role.arch;
@@ -332,6 +332,11 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
           <div>
             All variables anchored to public data · {TOPICS.length} topics · {ROLES.length} roles · 8 KPIs × 3 horizons
           </div>
+        </div>
+        <div className="mt-4 text-[10.5px] ink3 flex justify-end">
+          <button onClick={onLegal} className="hover:text-white transition underline-offset-2 hover:underline">
+            Privacy, Terms &amp; Disclaimer
+          </button>
         </div>
       </main>
     </div>

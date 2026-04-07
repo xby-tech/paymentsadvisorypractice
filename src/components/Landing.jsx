@@ -11,7 +11,7 @@ function Pitch({ num, title, body }) {
   );
 }
 
-export default function Landing({ roleId, setRoleId, onEnter }) {
+export default function Landing({ roleId, setRoleId, onEnter, onLegal }) {
   return (
     <div className="relative min-h-screen overflow-hidden">
       <div className="landing-bg"></div>
@@ -88,6 +88,11 @@ export default function Landing({ roleId, setRoleId, onEnter }) {
           </div>
           <div className="text-[10.5px] ink3 mt-3 tracking-[0.15em] uppercase">
             Built solo. Domain expertise meets AI tooling.
+          </div>
+          <div className="mt-6 text-[10.5px] ink3">
+            <button onClick={onLegal} className="hover:text-white transition underline-offset-2 hover:underline">
+              Privacy, Terms &amp; Disclaimer
+            </button>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TOPICS } from './data.js';
 import Landing from './components/Landing.jsx';
 import Dashboard from './components/Dashboard.jsx';
+import Legal from './components/Legal.jsx';
 
 export default function App() {
   const [stage, setStage] = useState('landing');
@@ -16,6 +17,22 @@ export default function App() {
     return init;
   });
 
+  const goLegal = () => {
+    setStage('legal');
+    window.scrollTo(0, 0);
+  };
+
+  if (stage === 'legal') {
+    return (
+      <Legal
+        onHome={() => {
+          setStage('landing');
+          window.scrollTo(0, 0);
+        }}
+      />
+    );
+  }
+
   if (stage === 'landing') {
     return (
       <Landing
@@ -25,6 +42,7 @@ export default function App() {
           setStage('app');
           window.scrollTo(0, 0);
         }}
+        onLegal={goLegal}
       />
     );
   }
@@ -37,6 +55,7 @@ export default function App() {
       sliders={sliders}
       setSliders={setSliders}
       onHome={() => setStage('landing')}
+      onLegal={goLegal}
     />
   );
 }
