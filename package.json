@@ -1,0 +1,11 @@
+{
+  "name": "payments-strategy-scenario-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive scenario dashboard for Australian payments strategy. Public data anchored, role aware.",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve ."
+  },
+  "license": "UNLICENSED"
+}
