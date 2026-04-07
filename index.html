@@ -799,7 +799,7 @@ function Landing({roleId, setRoleId, onEnter}){
         {/* Hero */}
         <div className="mt-28 max-w-3xl">
           <div className="text-[11px] uppercase tracking-[0.25em] ink3 reveal reveal-2">Applied AI × Australian Payments</div>
-          <h1 className="font-display text-[64px] md:text-[88px] leading-[0.95] grad-text mt-5 reveal reveal-2">
+          <h1 className="font-display text-[40px] sm:text-[56px] md:text-[88px] leading-[0.95] grad-text mt-5 reveal reveal-2">
             Payments strategy,<br/>recomputed in real time.
           </h1>
           <p className="text-[19px] leading-relaxed ink2 mt-8 max-w-2xl reveal reveal-3">
@@ -886,9 +886,9 @@ function Dashboard({roleId,setRoleId,topicId,setTopicId,sliders,setSliders,onHom
   const horizonScore = (h) => Object.values(result[h]).reduce((a,b)=>a+b,0);
 
   return (
-    <div className="relative z-10 min-h-screen flex">
+    <div className="relative z-10 min-h-screen flex flex-col md:flex-row">
       {/* LEFT RAIL */}
-      <aside className="w-[280px] shrink-0 border-r hairline min-h-screen flex flex-col bg-[#0a0c10]/60">
+      <aside className="w-full md:w-[280px] shrink-0 border-b md:border-b-0 md:border-r hairline md:min-h-screen flex flex-col bg-[#0a0c10]/60">
         <div className="px-6 pt-6 pb-4 border-b hairline">
           <button onClick={onHome} className="flex items-center gap-2 group">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#7cf2c8] to-[#5ec2ff]"></div>
@@ -899,7 +899,7 @@ function Dashboard({roleId,setRoleId,topicId,setTopicId,sliders,setSliders,onHom
           </button>
         </div>
         <div className="px-6 pt-5 pb-2 text-[10px] uppercase tracking-[0.2em] ink3">10 topics</div>
-        <nav className="flex-1 overflow-y-auto scrollbar">
+        <nav className="flex-1 overflow-y-auto scrollbar max-h-[40vh] md:max-h-none">
           {TOPICS.map((t,i) => (
             <div key={t.id} onClick={()=>setTopicId(t.id)}
               className={"rail-item " + (t.id===topicId?"active":"")}>
@@ -923,11 +923,11 @@ function Dashboard({roleId,setRoleId,topicId,setTopicId,sliders,setSliders,onHom
       </aside>
 
       {/* MAIN */}
-      <main className="flex-1 min-w-0 px-12 py-10 max-w-[1280px]">
+      <main className="flex-1 min-w-0 px-5 sm:px-8 md:px-12 py-8 md:py-10 max-w-[1280px]">
         {/* Topic hero */}
         <div key={topic.id+role.id} className="fade-in">
           <div className="text-[11px] uppercase tracking-[0.22em] ink3 mb-3">{topic.tagline}</div>
-          <h1 className="font-display text-[44px] md:text-[54px] leading-[1.02] grad-text max-w-3xl">{topic.title}</h1>
+          <h1 className="font-display text-[30px] sm:text-[38px] md:text-[54px] leading-[1.02] grad-text max-w-3xl break-words">{topic.title}</h1>
           <p className="mt-5 text-[17px] ink2 max-w-2xl leading-relaxed">{topic.hero}</p>
         </div>
 
