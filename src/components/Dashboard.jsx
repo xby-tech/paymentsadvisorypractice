@@ -240,9 +240,6 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
             >
               <div className="rail-num">{String(i + 1).padStart(2, '0')}</div>
               <div className="text-[13px] mt-1 leading-snug text-white/95">{t.title}</div>
-              <div className="mt-2">
-                <CharacterTag kind={TOPIC_CHARACTER[t.id]} />
-              </div>
             </div>
           ))}
         </nav>
@@ -269,10 +266,7 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
 
       <main className="flex-1 min-w-0 px-5 sm:px-8 md:px-12 py-8 md:py-10 max-w-[1280px]">
         <div key={topic.id + role.id} className="fade-in">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="text-[11px] uppercase tracking-[0.22em] ink3">{topic.tagline}</div>
-            <CharacterTag kind={TOPIC_CHARACTER[topic.id]} size="lg" />
-          </div>
+          <div className="text-[11px] uppercase tracking-[0.22em] ink3 mb-3">{topic.tagline}</div>
           <h1 className="font-display text-[30px] sm:text-[38px] md:text-[54px] leading-[1.1] pb-1 grad-text max-w-3xl break-words">
             {topic.title}
           </h1>
