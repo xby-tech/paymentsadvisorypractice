@@ -899,7 +899,13 @@ function Dashboard({roleId,setRoleId,topicId,setTopicId,sliders,setSliders,onHom
           </button>
         </div>
         <div className="px-6 pt-5 pb-2 text-[10px] uppercase tracking-[0.2em] ink3">10 topics</div>
-        <nav className="flex-1 overflow-y-auto scrollbar max-h-[40vh] md:max-h-none">
+        <div className="px-6 pb-5 md:hidden">
+          <select value={topicId} onChange={e=>setTopicId(e.target.value)}
+            className="w-full bg-[#0d0f13] border hairline rounded-xl px-3 py-2.5 text-[12.5px] focus:outline-none focus:border-[#7cf2c8] transition">
+            {TOPICS.map((t,i)=> <option key={t.id} value={t.id}>{String(i+1).padStart(2,"0")} · {t.title}</option>)}
+          </select>
+        </div>
+        <nav className="flex-1 overflow-y-auto scrollbar hidden md:block">
           {TOPICS.map((t,i) => (
             <div key={t.id} onClick={()=>setTopicId(t.id)}
               className={"rail-item " + (t.id===topicId?"active":"")}>
