@@ -30,3 +30,6 @@ build/
 
 # Netlify
 .netlify/
+
+# Local Claude config
+.claude/
