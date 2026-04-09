@@ -136,7 +136,8 @@ export async function handler(event, context) {
         model: MODEL,
         messages,
         temperature: 0.6,
-        max_tokens: 1800,
+        max_tokens: 3000,
+        response_format: { type: 'json_object' },
       }),
     });
     if (!xRes.ok) {
@@ -157,7 +158,7 @@ export async function handler(event, context) {
         body: JSON.stringify({ error: 'Could not parse model JSON', raw: text.slice(0, 600) }),
       };
     }
-    // Minimal shape validation
+    // Minimal shape validation - only horizons are required, slide_2/slide_4 degrade gracefully
     for (const h of ['short', 'med', 'long']) {
       if (!parsed[h] || !parsed[h].headline || !Array.isArray(parsed[h].actions) || !parsed[h].risk) {
         return {
