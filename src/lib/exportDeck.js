@@ -172,6 +172,17 @@ function slideCover(pptx, { topic, role, intensity, topicIndex }) {
     color: COLOR.ink3,
     charSpacing: 1,
   });
+  s.addText('Privacy, Terms & Disclaimer', {
+    x: 0.6,
+    y: 6.78,
+    w: 12,
+    h: 0.28,
+    fontFace: FONT,
+    fontSize: 9,
+    color: COLOR.accent2,
+    charSpacing: 1,
+    hyperlink: { url: 'https://aussiepay.netlify.app', tooltip: 'Open legal page' },
+  });
 }
 
 function slideScenario(pptx, { topic, plan }) {
@@ -773,10 +784,20 @@ function slideSources(pptx, { topic, shareUrl }) {
   s.addText(
     [
       { text: 'Restore this exact scenario:  ', options: { color: COLOR.ink3, fontSize: 9 } },
-      { text: shareUrl, options: { color: COLOR.accent2, fontSize: 9 } },
+      { text: shareUrl, options: { color: COLOR.accent2, fontSize: 9, hyperlink: { url: shareUrl } } },
     ],
-    { x: 0.6, y: 6.55, w: 12.2, h: 0.4, fontFace: FONT }
+    { x: 0.6, y: 6.55, w: 12.2, h: 0.3, fontFace: FONT }
   );
+  s.addText('Privacy, Terms & Disclaimer', {
+    x: 0.6,
+    y: 6.82,
+    w: 12.2,
+    h: 0.28,
+    fontFace: FONT,
+    fontSize: 9,
+    color: COLOR.accent2,
+    hyperlink: { url: 'https://aussiepay.netlify.app', tooltip: 'Open legal page' },
+  });
 
   addFooter(s, 'Payments Strategy Scenario Engine', 'Slide 06 · Sources');
 }
