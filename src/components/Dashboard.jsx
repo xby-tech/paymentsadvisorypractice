@@ -61,21 +61,19 @@ function BigSlider({ v, value, onChange, pulse }) {
   const color = direction === 'up' ? '#7cf2c8' : direction === 'down' ? '#ff6b8a' : '#9aa1ad';
   const range = v.max - v.min;
   const rangePct = range > 0 ? Math.round(((value - v.default) / range) * 100) : 0;
-  const [showInfo, setShowInfo] = useState(false);
   return (
     <div className={'big-slider lever-card relative ' + (pulse ? 'first-slider-pulse' : '')}>
       <div className="flex items-baseline justify-between gap-3">
         <div className="flex items-start gap-2 max-w-[70%]">
           <div className="text-[13px] text-white/90 leading-snug">{v.name}</div>
           {v.source && (
-            <button
-              type="button"
-              onClick={() => setShowInfo((s) => !s)}
-              className="info-dot shrink-0 mt-0.5"
-              aria-label="Show source"
-            >
-              i
-            </button>
+            <span className="info-wrap shrink-0 mt-0.5" tabIndex={0} aria-label={`Source: ${v.source}`}>
+              <span className="info-dot" aria-hidden="true">i</span>
+              <span className="source-pop" role="tooltip">
+                <span className="text-[9.5px] uppercase tracking-[0.18em] ink3 block mb-1">Source</span>
+                <span className="text-[11.5px] text-white/90 leading-relaxed block">{v.source}</span>
+              </span>
+            </span>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -97,20 +95,6 @@ function BigSlider({ v, value, onChange, pulse }) {
           </div>
         </div>
       </div>
-      {showInfo && v.source && (
-        <div className="source-pop">
-          <div className="text-[9.5px] uppercase tracking-[0.18em] ink3 mb-1">Source</div>
-          <div className="text-[11.5px] text-white/90 leading-relaxed">{v.source}</div>
-          <button
-            type="button"
-            onClick={() => setShowInfo(false)}
-            className="absolute top-2 right-3 ink3 hover:text-white text-[13px]"
-            aria-label="Close"
-          >
-            ×
-          </button>
-        </div>
-      )}
       <input
         type="range"
         min={v.min}
