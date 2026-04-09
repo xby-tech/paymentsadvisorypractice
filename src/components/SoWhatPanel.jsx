@@ -102,7 +102,7 @@ function HorizonPlanCard({ label, sub, plan }) {
   );
 }
 
-export default function SoWhatPanel({ topic, role, sliders, result }) {
+export default function SoWhatPanel({ topic, role, sliders, result, intensity, topicIndex }) {
   const inputHash = useMemo(() => hashInputs(topic.id, role.id, sliders), [topic, role, sliders]);
   const [plan, setPlan] = useState(null);
   const [planHash, setPlanHash] = useState(null);
@@ -147,6 +147,28 @@ export default function SoWhatPanel({ topic, role, sliders, result }) {
   const hasPlan = !!plan;
   const showShimmer = loading && !plan;
   const [copied, setCopied] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  async function downloadDeck() {
+    if (!hasPlan || downloading) return;
+    setDownloading(true);
+    try {
+      const { exportDeck } = await import('../lib/exportDeck.js');
+      await exportDeck({
+        topic,
+        role,
+        sliders,
+        result,
+        plan,
+        intensity,
+        topicIndex,
+        shareUrl: window.location.href,
+      });
+    } catch (e) {
+      setError('Could not build deck: ' + (e.message || e));
+    } finally {
+      setDownloading(false);
+    }
+  }
   async function copyShareLink() {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -177,6 +199,14 @@ export default function SoWhatPanel({ topic, role, sliders, result }) {
             title="Copy a link that restores this exact scenario"
           >
             {copied ? 'Link copied' : 'Share this scenario'}
+          </button>
+          <button
+            onClick={downloadDeck}
+            disabled={!hasPlan || downloading}
+            className="text-[12px] px-4 py-2.5 rounded-full chip ink2 hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed"
+            title={hasPlan ? 'Download the strategy deck as PowerPoint' : 'Generate the strategic brief first'}
+          >
+            {downloading ? 'Building deck…' : 'Download deck'}
           </button>
           <button
             onClick={generate}

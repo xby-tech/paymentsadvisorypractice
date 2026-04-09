@@ -56,15 +56,32 @@ ${varLines}
 ENGINE OUTPUT (role-weighted, normalised, sign means good/bad for THIS role):
 ${horizonLines}
 
-Write a "so what, your move" plan tailored to THIS role under THIS exact scenario state. Three horizons.
+Write a strategic brief tailored to THIS role under THIS exact scenario state. The brief feeds a downloadable PowerPoint deck with three sections: (1) the scenario framing for slide 2, (2) the outcome interpretation for slide 4, (3) the actionable play for slide 5.
 
-For EACH of short / med / long, return:
-- headline: ONE line (max 10 words). The strategic posture in plain English. Start with a verb.
-- actions: EXACTLY THREE bullet points. Each bullet is one imperative sentence (max 20 words) describing a concrete move THIS role should make in THIS horizon. No abstract advice. No "consider" or "explore".
+PART 1 — slide_2 framing. For each of opportunity / problem / context, write:
+- quote: ONE punchy thesis line in quotes, max 8 words. Headline-grade. No filler.
+- bullets: EXACTLY THREE short bullet points (max 12 words each) supporting the thesis. Concrete, role-aware, scenario-aware.
+
+PART 2 — slide_4 outcome interpretation:
+- scenario_take: ONE paragraph (3 to 5 sentences) interpreting THIS specific lever combination. Name which levers moved, what the combination means, and which framing (opportunity / problem / context) now dominates.
+- horizon_commentary: For each of short / med / long, ONE short paragraph (2 to 3 sentences) explaining WHY the engine score landed where it did. Reference specific KPIs and timing dynamics. Contrast horizons where useful.
+
+PART 3 — slide_5 actionable play. For each of short / med / long:
+- headline: ONE line (max 10 words). The strategic posture. Start with a verb.
+- actions: EXACTLY THREE bullets, each one imperative sentence (max 20 words) describing a concrete move. No "consider" or "explore".
 - risk: ONE line (max 18 words). What kills this play.
 
 OUTPUT FORMAT (STRICT JSON, no surrounding text, no markdown fences):
 {
+  "slide_2": {
+    "opportunity": { "quote": "...", "bullets": ["...", "...", "..."] },
+    "problem":     { "quote": "...", "bullets": ["...", "...", "..."] },
+    "context":     { "quote": "...", "bullets": ["...", "...", "..."] }
+  },
+  "slide_4": {
+    "scenario_take": "...",
+    "horizon_commentary": { "short": "...", "med": "...", "long": "..." }
+  },
   "short": { "headline": "...", "actions": ["...", "...", "..."], "risk": "..." },
   "med":   { "headline": "...", "actions": ["...", "...", "..."], "risk": "..." },
   "long":  { "headline": "...", "actions": ["...", "...", "..."], "risk": "..." }
@@ -119,7 +136,7 @@ export async function handler(event, context) {
         model: MODEL,
         messages,
         temperature: 0.6,
-        max_tokens: 900,
+        max_tokens: 1800,
       }),
     });
     if (!xRes.ok) {

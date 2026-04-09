@@ -453,7 +453,7 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
           </div>
         </section>
 
-        <SoWhatPanel topic={topic} role={role} sliders={sliders[topic.id]} result={result} />
+        <SoWhatPanel topic={topic} role={role} sliders={sliders[topic.id]} result={result} intensity={intensity} topicIndex={topicIndex} />
 
         <div className="mt-20 pt-8 border-t hairline text-[11px] ink3 flex flex-wrap gap-x-6 gap-y-2 justify-between">
           <div>Sources: RBA, AusPayNet, BIS, Treasury, ACCC, scheme disclosures, EU IFR studies.</div>
