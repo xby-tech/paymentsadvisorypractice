@@ -19,7 +19,14 @@ const TOPIC_CHARACTER = {
 const CHARACTER_STYLE = {
   Opportunity: { color: '#7cf2c8', bg: 'rgba(124,242,200,0.08)', border: 'rgba(124,242,200,0.3)' },
   Threat: { color: '#ff6b8a', bg: 'rgba(255,107,138,0.08)', border: 'rgba(255,107,138,0.3)' },
-  'Structural shift': { color: '#5ec2ff', bg: 'rgba(94,194,255,0.08)', border: 'rgba(94,194,255,0.3)' },
+  'Structural shift': { color: '#a78bfa', bg: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.3)' },
+};
+
+// Per-topic chroma — drives slider tracks, glows, watermark, page wash
+const CHARACTER_ACCENT = {
+  Opportunity:        { hex: '#7cf2c8', rgb: '124,242,200', hex2: '#5ec2ff', rgb2: '94,194,255' },
+  Threat:             { hex: '#ff6b8a', rgb: '255,107,138', hex2: '#ffb86b', rgb2: '255,184,107' },
+  'Structural shift': { hex: '#a78bfa', rgb: '167,139,250', hex2: '#5ec2ff', rgb2: '94,194,255' },
 };
 
 function CharacterTag({ kind, size = 'sm' }) {
@@ -52,9 +59,11 @@ function BigSlider({ v, value, onChange, pulse }) {
   const delta = value - v.default;
   const direction = Math.abs(delta) < 1e-6 ? 'baseline' : delta > 0 ? 'up' : 'down';
   const color = direction === 'up' ? '#7cf2c8' : direction === 'down' ? '#ff6b8a' : '#9aa1ad';
+  const range = v.max - v.min;
+  const rangePct = range > 0 ? Math.round(((value - v.default) / range) * 100) : 0;
   const [showInfo, setShowInfo] = useState(false);
   return (
-    <div className={'big-slider relative ' + (pulse ? 'first-slider-pulse' : '')}>
+    <div className={'big-slider lever-card relative ' + (pulse ? 'first-slider-pulse' : '')}>
       <div className="flex items-baseline justify-between gap-3">
         <div className="flex items-start gap-2 max-w-[70%]">
           <div className="text-[13px] text-white/90 leading-snug">{v.name}</div>
@@ -70,6 +79,19 @@ function BigSlider({ v, value, onChange, pulse }) {
           )}
         </div>
         <div className="flex items-center gap-2">
+          {direction !== 'baseline' && (
+            <div
+              className="text-[10px] font-mono px-1.5 py-0.5 rounded delta-badge"
+              style={{
+                background: `rgba(${direction === 'up' ? '124,242,200' : '255,107,138'},0.12)`,
+                color,
+                border: `1px solid rgba(${direction === 'up' ? '124,242,200' : '255,107,138'},0.25)`,
+              }}
+            >
+              {rangePct > 0 ? '+' : ''}
+              {rangePct}%
+            </div>
+          )}
           <div className="num-tick text-[26px] font-display tracking-tight" style={{ color }}>
             {fmtVal(v, value)}
           </div>
@@ -112,13 +134,50 @@ function BigSlider({ v, value, onChange, pulse }) {
   );
 }
 
-function HorizonCard({ label, sub, score, movers }) {
+function IntensityMeter({ value }) {
+  // Half-circle arc, 0..100 fills the arc with topic accent
+  const r = 34;
+  const c = Math.PI * r; // half-circle circumference
+  const filled = (Math.min(100, Math.max(0, value)) / 100) * c;
+  return (
+    <div className="intensity-meter flex items-center gap-3" title="Scenario intensity">
+      <svg viewBox="0 0 80 46" width="76" height="44" className="overflow-visible">
+        <path
+          d={`M 6 40 A ${r} ${r} 0 0 1 74 40`}
+          fill="none"
+          stroke="rgba(255,255,255,0.07)"
+          strokeWidth="4"
+          strokeLinecap="round"
+        />
+        <path
+          d={`M 6 40 A ${r} ${r} 0 0 1 74 40`}
+          fill="none"
+          stroke="var(--topic-accent)"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeDasharray={`${filled} ${c}`}
+          style={{ filter: 'drop-shadow(0 0 6px var(--topic-accent))', transition: 'stroke-dasharray .55s cubic-bezier(.2,.8,.2,1)' }}
+        />
+      </svg>
+      <div className="leading-tight">
+        <div className="font-display text-[20px] num-tick" style={{ color: 'var(--topic-accent)' }}>
+          {value}
+          <span className="text-[11px] ink3 ml-0.5">%</span>
+        </div>
+        <div className="text-[9px] uppercase tracking-[0.18em] ink3">Scenario intensity</div>
+      </div>
+    </div>
+  );
+}
+
+function HorizonCard({ label, sub, score, movers, accentRgb }) {
   const s = Math.max(-6, Math.min(6, score));
   const norm = s / 6;
   const good = norm >= 0;
   const intensity = Math.min(1, Math.abs(norm) * 1.4);
   const color = good ? '#7cf2c8' : '#ff6b8a';
-  const glowColor = good ? 'rgba(124,242,200,1)' : 'rgba(255,107,138,1)';
+  // Good outcomes pick up topic accent for chroma variety, bad outcomes stay coral
+  const glowColor = good ? `rgba(${accentRgb || '124,242,200'},1)` : 'rgba(255,107,138,1)';
   const verdict =
     norm > 0.5 ? 'Strongly favourable' : norm > 0.15 ? 'Favourable' : norm > -0.15 ? 'Neutral' : norm > -0.5 ? 'Adverse' : 'Strongly adverse';
   return (
@@ -127,7 +186,7 @@ function HorizonCard({ label, sub, score, movers }) {
       style={{
         '--gc': glowColor,
         '--gop': intensity * 0.7,
-        borderColor: `rgba(${good ? '124,242,200' : '255,107,138'},${0.15 + intensity * 0.4})`,
+        borderColor: `rgba(${good ? accentRgb || '124,242,200' : '255,107,138'},${0.15 + intensity * 0.4})`,
       }}
     >
       <div className="glow"></div>
@@ -163,8 +222,12 @@ function HorizonCard({ label, sub, score, movers }) {
                   ></span>
                   <span style={{ left: '50%', width: '1px', background: 'rgba(255,255,255,0.12)' }}></span>
                 </div>
-                <div className="font-mono num-tick w-9 text-right" style={{ color: mGood ? '#7cf2c8' : '#ff6b8a' }}>
-                  {m.v.toFixed(2)}
+                <div
+                  className="font-mono num-tick w-12 text-right flex items-center justify-end gap-1"
+                  style={{ color: mGood ? '#7cf2c8' : '#ff6b8a' }}
+                >
+                  <span className="text-[9px]">{mGood ? '▲' : '▼'}</span>
+                  <span>{m.v.toFixed(2)}</span>
                 </div>
               </div>
             );
@@ -193,6 +256,31 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
 
   const result = useMemo(() => computeOutcomes(topic, sliders[topic.id], archetype), [topic, sliders, archetype]);
   const briefing = topic.briefing[archetype];
+
+  // Per-topic chroma (V1)
+  const character = TOPIC_CHARACTER[topic.id];
+  const accent = CHARACTER_ACCENT[character] || CHARACTER_ACCENT.Opportunity;
+  const topicIndex = TOPICS.findIndex((t) => t.id === topic.id);
+  const accentStyle = {
+    '--topic-accent': accent.hex,
+    '--topic-accent-rgb': accent.rgb,
+    '--topic-accent-2': accent.hex2,
+    '--topic-accent-2-rgb': accent.rgb2,
+  };
+
+  // Scenario intensity 0-100 — average % of range moved across all levers (V3)
+  const intensity = useMemo(() => {
+    let total = 0;
+    let n = 0;
+    topic.variables.forEach((v) => {
+      const range = v.max - v.min;
+      if (range > 0) {
+        total += Math.abs(sliders[topic.id][v.id] - v.default) / range;
+        n += 1;
+      }
+    });
+    return n === 0 ? 0 : Math.round((total / n) * 100);
+  }, [topic, sliders]);
 
   const topMovers = (h) => {
     const entries = Object.entries(result[h]).map(([k, v]) => ({
@@ -264,13 +352,15 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
         </div>
       </aside>
 
-      <main className="flex-1 min-w-0 px-5 sm:px-8 md:px-12 py-8 md:py-10 max-w-[1280px]">
-        <div key={topic.id + role.id} className="fade-in">
-          <div className="text-[11px] uppercase tracking-[0.22em] ink3 mb-3">{topic.tagline}</div>
-          <h1 className="font-display text-[30px] sm:text-[38px] md:text-[54px] leading-[1.1] pb-1 grad-text max-w-3xl break-words">
+      <main className="flex-1 min-w-0 px-5 sm:px-8 md:px-12 py-8 md:py-10 max-w-[1280px] relative topic-themed" style={accentStyle}>
+        <div className="topic-wash" aria-hidden="true"></div>
+        <div key={topic.id + role.id} className="fade-in relative">
+          <div className="topic-numeral" aria-hidden="true">{String(topicIndex + 1).padStart(2, '0')}</div>
+          <div className="text-[11px] uppercase tracking-[0.22em] ink3 mb-3 relative">{topic.tagline}</div>
+          <h1 className="font-display text-[30px] sm:text-[38px] md:text-[54px] leading-[1.1] pb-1 grad-text max-w-3xl break-words relative">
             {topic.title}
           </h1>
-          <p className="mt-5 text-[17px] ink2 max-w-2xl leading-relaxed">{topic.hero}</p>
+          <p className="mt-5 text-[17px] ink2 max-w-2xl leading-relaxed relative">{topic.hero}</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-5 mt-10 fade-in">
@@ -284,18 +374,21 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
           Cross-topic ripple effects, coming soon
         </div>
 
-        <section className="mt-12">
-          <div className="flex items-baseline justify-between mb-6">
+        <section className="mt-12 relative">
+          <div className="flex items-end justify-between mb-6 gap-4 flex-wrap">
             <div>
               <div className="text-[10px] uppercase tracking-[0.22em] ink3">Scenario variables</div>
               <h2 className="font-display text-[26px] mt-1">Move the levers</h2>
             </div>
-            <button
-              onClick={reset}
-              className="text-[11px] ink2 hover:text-white transition px-3 py-1.5 rounded-full chip"
-            >
-              Reset to baseline
-            </button>
+            <div className="flex items-center gap-5">
+              <IntensityMeter value={intensity} />
+              <button
+                onClick={reset}
+                className="text-[11px] ink2 hover:text-white transition px-3 py-1.5 rounded-full chip"
+              >
+                Reset to baseline
+              </button>
+            </div>
           </div>
           <div className="grid md:grid-cols-2 gap-x-10 gap-y-7">
             {topic.variables.map((v, i) => (
@@ -319,9 +412,9 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
             <div className="text-[11px] ink3">Net effect for {role.label}</div>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
-            <HorizonCard label="Short term" sub="0 to 12 months" score={horizonScore('short')} movers={topMovers('short')} />
-            <HorizonCard label="Medium term" sub="1 to 3 years" score={horizonScore('med')} movers={topMovers('med')} />
-            <HorizonCard label="Long term" sub="3 to 7 years" score={horizonScore('long')} movers={topMovers('long')} />
+            <HorizonCard label="Short term" sub="0 to 12 months" score={horizonScore('short')} movers={topMovers('short')} accentRgb={accent.rgb} />
+            <HorizonCard label="Medium term" sub="1 to 3 years" score={horizonScore('med')} movers={topMovers('med')} accentRgb={accent.rgb} />
+            <HorizonCard label="Long term" sub="3 to 7 years" score={horizonScore('long')} movers={topMovers('long')} accentRgb={accent.rgb} />
           </div>
         </section>
 

@@ -34,8 +34,12 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;background-im
 details>summary{list-style:none;cursor:pointer}
 details>summary::-webkit-details-marker{display:none}
 
-.big-slider input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:4px}
-.big-slider input[type=range]::-webkit-slider-thumb{width:26px;height:26px;margin-top:-11px;box-shadow:0 0 0 1px rgba(255,255,255,0.25),0 10px 30px rgba(124,242,200,0.45)}
+.big-slider input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:4px;background:linear-gradient(90deg,rgba(var(--topic-accent-rgb,124,242,200),0.7),rgba(var(--topic-accent-2-rgb,94,194,255),0.55))}
+.big-slider input[type=range]::-webkit-slider-thumb{width:26px;height:26px;margin-top:-11px;background:#fff;box-shadow:0 0 0 1px rgba(255,255,255,0.25),0 10px 30px rgba(var(--topic-accent-rgb,124,242,200),0.5)}
+
+/* V4 — lever card glass tier */
+.lever-card{padding:18px 20px;border-radius:18px;border:1px solid rgba(255,255,255,0.05);background:linear-gradient(180deg,rgba(255,255,255,0.022),rgba(255,255,255,0.004));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.025),0 18px 40px -28px rgba(0,0,0,0.7);transition:border-color .3s ease, box-shadow .3s ease}
+.lever-card:hover{border-color:rgba(var(--topic-accent-rgb,124,242,200),0.22);box-shadow:inset 0 1px 0 rgba(255,255,255,0.04),0 22px 50px -28px rgba(0,0,0,0.8)}
 
 .rail-item{display:block;padding:14px 18px;border-left:2px solid transparent;transition:all .25s ease;cursor:pointer;position:relative}
 .rail-item:hover{background:rgba(255,255,255,0.025)}
@@ -67,9 +71,22 @@ details>summary::-webkit-details-marker{display:none}
 .shimmer::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent);animation:shimmer 1.4s infinite}
 @keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 
-/* Elevated brief (triptych) */
-.brief-card{background:linear-gradient(180deg,rgba(255,255,255,0.028),rgba(255,255,255,0.006));box-shadow:inset 0 0 0 1px rgba(255,255,255,0.025),0 20px 50px -30px rgba(0,0,0,0.7);transition:transform .4s ease, box-shadow .4s ease}
+/* Elevated brief (triptych) — V4 glass tier */
+.brief-card{background:linear-gradient(180deg,rgba(255,255,255,0.028),rgba(255,255,255,0.006));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:inset 0 0 0 1px rgba(255,255,255,0.025),0 20px 50px -30px rgba(0,0,0,0.7);transition:transform .4s ease, box-shadow .4s ease, border-color .4s ease}
 .brief-card:hover{transform:translateY(-2px);box-shadow:inset 0 0 0 1px rgba(255,255,255,0.045),0 30px 70px -30px rgba(0,0,0,0.8)}
+
+/* V1 — per-topic chroma. The .topic-themed wrapper sets --topic-accent / --topic-accent-rgb via inline style. */
+.topic-themed{position:relative}
+.topic-wash{position:absolute;top:0;left:0;right:0;height:380px;pointer-events:none;background:radial-gradient(ellipse 80% 100% at 30% 0%,rgba(var(--topic-accent-rgb,124,242,200),0.07),transparent 70%),radial-gradient(ellipse 60% 80% at 80% 0%,rgba(var(--topic-accent-2-rgb,94,194,255),0.04),transparent 70%);z-index:0;transition:opacity .6s ease}
+.topic-numeral{position:absolute;top:-46px;right:-8px;font-family:'SF Pro Display','Inter',system-ui,sans-serif;font-size:240px;font-weight:800;line-height:0.8;letter-spacing:-0.06em;color:var(--topic-accent);opacity:0.045;pointer-events:none;user-select:none;z-index:0}
+@media (max-width:768px){.topic-numeral{font-size:140px;top:-20px}}
+
+/* Horizon card glass */
+.horizon-card{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+
+/* Intensity meter — sits in the levers section header */
+.intensity-meter svg{display:block}
+.delta-badge{font-feature-settings:"tnum";letter-spacing:-0.01em}
 
 /* Ghost sowhat card */
 .sowhat-ghost{background:repeating-linear-gradient(135deg,rgba(255,255,255,0.012) 0 10px,transparent 10px 20px),linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border-style:dashed}
