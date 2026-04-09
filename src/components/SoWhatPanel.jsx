@@ -146,6 +146,16 @@ export default function SoWhatPanel({ topic, role, sliders, result }) {
 
   const hasPlan = !!plan;
   const showShimmer = loading && !plan;
+  const [copied, setCopied] = useState(false);
+  async function copyShareLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  }
 
   return (
     <section className="sowhat-section mt-16">
@@ -161,6 +171,13 @@ export default function SoWhatPanel({ topic, role, sliders, result }) {
               Scenario changed
             </span>
           )}
+          <button
+            onClick={copyShareLink}
+            className="text-[12px] px-4 py-2.5 rounded-full chip ink2 hover:text-white transition"
+            title="Copy a link that restores this exact scenario"
+          >
+            {copied ? 'Link copied' : 'Share this scenario'}
+          </button>
           <button
             onClick={generate}
             disabled={loading}
