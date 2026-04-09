@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { TOPICS, ROLES, ARCHETYPES, KPIS } from '../data.js';
 import { computeOutcomes, fmtVal } from '../engine.js';
+import { LEVER_QUESTIONS, TOPIC_PRESETS } from '../content.js';
 import SoWhatPanel from './SoWhatPanel.jsx';
 
 // Topic character assignment for nav tags
@@ -55,7 +56,7 @@ function Brief({ label, body, accent }) {
   );
 }
 
-function BigSlider({ v, value, onChange, pulse }) {
+function BigSlider({ v, value, onChange, pulse, question }) {
   const delta = value - v.default;
   const direction = Math.abs(delta) < 1e-6 ? 'baseline' : delta > 0 ? 'up' : 'down';
   const color = direction === 'up' ? '#7cf2c8' : direction === 'down' ? '#ff6b8a' : '#9aa1ad';
@@ -65,7 +66,10 @@ function BigSlider({ v, value, onChange, pulse }) {
     <div className={'big-slider lever-card relative ' + (pulse ? 'first-slider-pulse' : '')}>
       <div className="flex items-baseline justify-between gap-3">
         <div className="flex items-start gap-2 max-w-[70%]">
-          <div className="text-[13px] text-white/90 leading-snug">{v.name}</div>
+          <div className="leading-snug">
+            {question && <div className="text-[14px] text-white/95">{question}</div>}
+            <div className={(question ? 'text-[10.5px] ink3 mt-1 uppercase tracking-[0.1em]' : 'text-[13px] text-white/90')}>{v.name}</div>
+          </div>
           {v.source && (
             <span className="info-wrap shrink-0 mt-0.5" tabIndex={0} aria-label={`Source: ${v.source}`}>
               <span className="info-dot" aria-hidden="true">i</span>
@@ -237,6 +241,35 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
       return copy;
     });
   };
+  const applyPreset = (preset) => {
+    if (!preset.sliders) {
+      reset();
+      return;
+    }
+    setSliders((s) => {
+      const next = { ...s[topic.id] };
+      topic.variables.forEach((v) => {
+        if (preset.sliders[v.id] !== undefined) next[v.id] = preset.sliders[v.id];
+      });
+      return { ...s, [topic.id]: next };
+    });
+  };
+  const presets = TOPIC_PRESETS[topic.id] || [];
+  const activePresetId = (() => {
+    const cur = sliders[topic.id];
+    for (const p of presets) {
+      if (!p.sliders) {
+        const isDefault = topic.variables.every((v) => Math.abs(cur[v.id] - v.default) < 1e-6);
+        if (isDefault) return p.id;
+        continue;
+      }
+      const match = topic.variables.every((v) =>
+        p.sliders[v.id] === undefined ? true : Math.abs(cur[v.id] - p.sliders[v.id]) < 1e-6
+      );
+      if (match) return p.id;
+    }
+    return null;
+  })();
 
   const result = useMemo(() => computeOutcomes(topic, sliders[topic.id], archetype), [topic, sliders, archetype]);
   const briefing = topic.briefing[archetype];
@@ -374,6 +407,23 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
               </button>
             </div>
           </div>
+          {presets.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2 mb-6">
+              <div className="text-[10px] uppercase tracking-[0.18em] ink3 mr-1">Presets</div>
+              {presets.map((p) => {
+                const active = p.id === activePresetId;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => applyPreset(p)}
+                    className={'text-[11.5px] px-3 py-1.5 rounded-full transition ' + (active ? 'chip chip-on' : 'chip ink2 hover:text-white')}
+                  >
+                    {p.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
           <div className="grid md:grid-cols-2 gap-x-10 gap-y-7">
             {topic.variables.map((v, i) => (
               <BigSlider
@@ -382,6 +432,7 @@ export default function Dashboard({ roleId, setRoleId, topicId, setTopicId, slid
                 value={sliders[topic.id][v.id]}
                 onChange={(val) => setSlider(v.id, val)}
                 pulse={i === 0}
+                question={LEVER_QUESTIONS[topic.id]?.[v.id]}
               />
             ))}
           </div>
