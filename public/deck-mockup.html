@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Deck mockup — Payments Scenario Engine</title>
+<style>
+  :root{
+    --bg:#08090b; --panel:#11141a; --line:#1c2029;
+    --ink:#f5f6f8; --ink2:#9aa1ad; --ink3:#5b6271;
+    --accent:#7cf2c8; --accent2:#5ec2ff; --bad:#ff6b8a; --warn:#ffb86b;
+  }
+  html,body{margin:0;background:#1a1d24;color:var(--ink);font-family:'Inter','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 20px 80px}
+  h1.page{font-size:13px;text-transform:uppercase;letter-spacing:0.2em;color:var(--ink3);margin:0 0 6px}
+  .lede{font-size:13px;color:var(--ink2);margin:0 0 32px}
+  .slide{
+    width:1120px;height:630px;background:var(--bg);border-radius:8px;
+    box-shadow:0 30px 80px -30px rgba(0,0,0,0.7);
+    margin:0 auto 28px;position:relative;overflow:hidden;
+    border:1px solid #222;
+  }
+  .slide-num{position:absolute;top:14px;right:20px;font-size:10px;color:var(--ink3);font-family:ui-monospace,monospace;letter-spacing:0.15em}
+  .accent-bar{position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#7cf2c8,#5ec2ff)}
+  .footer{position:absolute;bottom:18px;left:48px;right:48px;display:flex;justify-content:space-between;font-size:10px;color:var(--ink3);letter-spacing:0.12em;text-transform:uppercase;border-top:1px solid #1c2029;padding-top:10px}
+  .label{font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:var(--ink3);margin-bottom:8px}
+  .grad{background:linear-gradient(180deg,#fff,#9aa1ad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+  /* Slide 1 - cover */
+  .s1{padding:60px}
+  .s1 .topnum{position:absolute;top:30%;right:60px;font-size:280px;font-weight:800;line-height:0.8;color:#7cf2c8;opacity:0.05;letter-spacing:-0.06em}
+  .s1 .kicker{font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:var(--ink3);margin-top:60px}
+  .s1 h1{font-size:64px;line-height:1.05;letter-spacing:-0.02em;margin:18px 0 0;max-width:780px;font-weight:700}
+  .s1 .lens{display:inline-flex;align-items:center;gap:10px;margin-top:30px;font-size:13px;color:var(--ink2)}
+  .s1 .lens .dot{width:8px;height:8px;border-radius:50%;background:#7cf2c8;box-shadow:0 0 12px #7cf2c8}
+  .s1 .meta{position:absolute;bottom:80px;left:60px;font-size:11px;color:var(--ink3);letter-spacing:0.1em}
+  .s1 .meta strong{color:var(--ink2);font-weight:500}
+
+  /* Slide 2 - the scenario */
+  .s2{padding:48px 60px}
+  .s2 h2{font-size:36px;margin:8px 0 6px;letter-spacing:-0.01em}
+  .s2 .briefs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px}
+  .s2 .take{margin-top:18px;padding:16px 20px;border-left:3px solid #7cf2c8;background:linear-gradient(90deg,rgba(124,242,200,0.06),transparent);border-radius:0 10px 10px 0}
+  .s2 .take .lab{font-size:9px;text-transform:uppercase;letter-spacing:0.2em;color:#7cf2c8;margin-bottom:6px;font-weight:600}
+  .s2 .take p{font-size:12.5px;line-height:1.55;color:rgba(255,255,255,0.92);margin:0}
+  .s2 .hero{font-size:13px;color:var(--ink2);max-width:920px;line-height:1.5;margin:0 0 18px}
+  .s2 .brief{background:linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.005));border:1px solid #1c2029;border-radius:14px;padding:22px}
+  .s2 .brief .head{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px}
+  .s2 .brief .head .dot{width:6px;height:6px;border-radius:50%}
+  .s2 .brief p{font-size:12.5px;line-height:1.55;color:rgba(255,255,255,0.9);margin:0}
+
+  /* Slide 2 hybrid (A + C) — pull-quote + bullets */
+  .s2 .brief .quote{font-family:'Inter','Segoe UI',sans-serif;font-size:18px;font-weight:600;line-height:1.25;letter-spacing:-0.01em;margin-bottom:14px}
+  .s2 .brief .quote.opp{color:#7cf2c8}
+  .s2 .brief .quote.prob{color:#ff6b8a}
+  .s2 .brief .quote.ctx{color:#5ec2ff}
+  .s2 .brief ul{margin:0;padding:0;list-style:none}
+  .s2 .brief li{font-size:11.5px;line-height:1.5;color:rgba(255,255,255,0.85);padding-left:14px;position:relative;margin-bottom:7px}
+  .s2 .brief li::before{content:"▸";position:absolute;left:0;color:#7cf2c8}
+
+  /* Slide 2 variants */
+  .variant-tag{position:absolute;top:14px;left:20px;font-size:9px;font-family:ui-monospace,monospace;letter-spacing:0.18em;color:#7cf2c8;text-transform:uppercase;background:rgba(124,242,200,0.08);padding:4px 9px;border-radius:10px;border:1px solid rgba(124,242,200,0.25)}
+
+  /* Variant A — bullets */
+  .vA .briefs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px}
+  .vA .brief{background:linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.005));border:1px solid #1c2029;border-radius:14px;padding:22px}
+  .vA .brief .head{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px}
+  .vA .brief .head .dot{width:6px;height:6px;border-radius:50%}
+  .vA .brief .thesis{font-size:14px;font-weight:600;line-height:1.35;color:#fff;margin-bottom:14px}
+  .vA .brief ul{margin:0;padding:0;list-style:none}
+  .vA .brief li{font-size:11.5px;line-height:1.5;color:rgba(255,255,255,0.85);padding-left:14px;position:relative;margin-bottom:8px}
+  .vA .brief li::before{content:"▸";position:absolute;left:0;color:#7cf2c8}
+
+  /* Variant B — stat anchor */
+  .vB .briefs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px}
+  .vB .brief{background:linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.005));border:1px solid #1c2029;border-radius:14px;padding:24px;position:relative;overflow:hidden}
+  .vB .brief .head{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px}
+  .vB .brief .head .dot{width:6px;height:6px;border-radius:50%}
+  .vB .brief .stat{font-size:54px;font-weight:700;letter-spacing:-0.03em;line-height:1;margin-bottom:4px}
+  .vB .brief .stat.opp{color:#7cf2c8}
+  .vB .brief .stat.prob{color:#ff6b8a}
+  .vB .brief .stat.ctx{color:#5ec2ff}
+  .vB .brief .statlbl{font-size:9.5px;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink3);margin-bottom:14px}
+  .vB .brief p{font-size:12px;line-height:1.55;color:rgba(255,255,255,0.9);margin:0}
+
+  /* Variant C — pull-quote */
+  .vC .briefs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px}
+  .vC .brief{background:linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.005));border:1px solid #1c2029;border-radius:14px;padding:28px 24px;position:relative}
+  .vC .brief .head{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:18px}
+  .vC .brief .head .dot{width:6px;height:6px;border-radius:50%}
+  .vC .brief .quote{font-family:'Inter','Segoe UI',sans-serif;font-size:22px;font-weight:600;line-height:1.2;letter-spacing:-0.01em;margin-bottom:18px}
+  .vC .brief .quote.opp{color:#7cf2c8}
+  .vC .brief .quote.prob{color:#ff6b8a}
+  .vC .brief .quote.ctx{color:#5ec2ff}
+  .vC .brief p{font-size:12px;line-height:1.55;color:rgba(255,255,255,0.85);margin:0}
+
+  /* Variant D — icon row */
+  .vD .briefs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px}
+  .vD .brief{background:linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.005));border:1px solid #1c2029;border-radius:14px;padding:24px}
+  .vD .brief .icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:22px;font-weight:600}
+  .vD .brief .icon.opp{background:rgba(124,242,200,0.1);border:1px solid rgba(124,242,200,0.3);color:#7cf2c8}
+  .vD .brief .icon.prob{background:rgba(255,107,138,0.1);border:1px solid rgba(255,107,138,0.3);color:#ff6b8a}
+  .vD .brief .icon.ctx{background:rgba(94,194,255,0.1);border:1px solid rgba(94,194,255,0.3);color:#5ec2ff}
+  .vD .brief .head{font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+  .vD .brief .thesis{font-size:14px;font-weight:600;line-height:1.35;color:#fff;margin-bottom:10px}
+  .vD .brief p{font-size:11.5px;line-height:1.55;color:rgba(255,255,255,0.85);margin:0}
+
+  /* Slide 3 - levers */
+  .s3{padding:48px 60px}
+  .s3 .head-row{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px}
+  .s3 h2{font-size:32px;margin:6px 0 0;letter-spacing:-0.01em}
+  .s3 .intensity{display:flex;align-items:center;gap:14px}
+  .s3 .intensity .num{font-size:32px;color:#7cf2c8;font-weight:600}
+  .s3 .intensity .lbl{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink3)}
+  .s3 table{width:100%;border-collapse:collapse}
+  .s3 th{font-size:9px;text-transform:uppercase;letter-spacing:0.15em;color:var(--ink3);text-align:left;padding:10px 12px;border-bottom:1px solid #1c2029;font-weight:500}
+  .s3 td{padding:14px 12px;border-bottom:1px solid #14171d;font-size:13px;vertical-align:middle}
+  .s3 td.q{color:#fff}
+  .s3 td.tn{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-top:3px}
+  .s3 td.num{font-family:ui-monospace,monospace;text-align:right;color:var(--ink2)}
+  .s3 td.delta{text-align:right;font-family:ui-monospace,monospace;font-weight:600}
+  .s3 .up{color:#7cf2c8}
+  .s3 .down{color:#ff6b8a}
+  .s3 .flat{color:var(--ink3)}
+
+  /* Slide 4 - outcomes */
+  .s4{padding:42px 60px}
+  .s4 h2{font-size:28px;margin:6px 0 14px;letter-spacing:-0.01em}
+  .s4 .summary{margin-bottom:18px;padding:14px 18px;border-left:3px solid #7cf2c8;background:linear-gradient(90deg,rgba(124,242,200,0.06),transparent);border-radius:0 10px 10px 0}
+  .s4 .summary .lab{font-size:9px;text-transform:uppercase;letter-spacing:0.2em;color:#7cf2c8;margin-bottom:5px;font-weight:600}
+  .s4 .summary p{font-size:12px;line-height:1.5;color:rgba(255,255,255,0.92);margin:0}
+  .s4 .horizons{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+  .s4 .h{background:linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.005));border:1px solid #1c2029;border-radius:14px;padding:22px;position:relative;overflow:hidden}
+  .s4 .h .lab{font-size:9px;text-transform:uppercase;letter-spacing:0.2em;color:var(--ink3)}
+  .s4 .h .sub{font-size:10px;color:var(--ink3);font-family:ui-monospace,monospace;margin-top:3px}
+  .s4 .h .verdict{position:absolute;top:22px;right:22px;font-size:9px;text-transform:uppercase;letter-spacing:0.18em;color:#7cf2c8}
+  .s4 .h .verdict.bad{color:#ff6b8a}
+  .s4 .h .score{font-size:60px;font-weight:700;letter-spacing:-0.03em;margin-top:24px;line-height:1}
+  .s4 .h .score.good{color:#7cf2c8}
+  .s4 .h .score.bad{color:#ff6b8a}
+  .s4 .h .scoresub{font-size:10px;color:var(--ink3);margin-top:4px}
+  .s4 .movers{margin-top:22px}
+  .s4 .m{display:flex;align-items:center;gap:10px;font-size:11px;margin-bottom:8px}
+  .s4 .m .lbl{flex:0 0 110px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .s4 .m .bar{flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;position:relative}
+  .s4 .m .bar span{position:absolute;top:0;bottom:0;border-radius:2px}
+  .s4 .m .v{flex:0 0 50px;text-align:right;font-family:ui-monospace,monospace;font-weight:600}
+  .s4 .commentary{margin-top:14px;padding-top:12px;border-top:1px solid #1c2029;font-size:11px;line-height:1.55;color:rgba(255,255,255,0.85)}
+  .s4 .commentary b{color:#7cf2c8;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;display:block;margin-bottom:5px;font-weight:600}
+  .s4 .h .score{font-size:48px;font-weight:700;letter-spacing:-0.03em;margin-top:18px;line-height:1}
+  .s4 .movers{margin-top:16px}
+
+  /* Slide 5 - actionable play */
+  .s5{padding:48px 60px}
+  .s5 h2{font-size:32px;margin:6px 0 22px;letter-spacing:-0.01em}
+  .s5 .plays{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+  .s5 .p{background:linear-gradient(180deg,rgba(124,242,200,0.025),rgba(94,194,255,0.012));border:1px solid #1c2029;border-radius:14px;padding:22px}
+  .s5 .p .lab{font-size:9px;text-transform:uppercase;letter-spacing:0.2em;color:var(--ink3)}
+  .s5 .p .sub{font-size:10px;color:var(--ink3);font-family:ui-monospace,monospace;margin-top:3px;margin-bottom:14px}
+  .s5 .p .head{font-size:16px;line-height:1.3;font-weight:600;margin-bottom:14px}
+  .s5 .p ul{margin:0;padding:0;list-style:none}
+  .s5 .p li{font-size:11.5px;line-height:1.5;color:rgba(255,255,255,0.92);margin-bottom:8px;padding-left:14px;position:relative}
+  .s5 .p li::before{content:"▸";position:absolute;left:0;color:#7cf2c8}
+  .s5 .p .risk{margin-top:14px;padding-top:12px;border-top:1px solid #1c2029;font-size:11px;color:var(--ink2);line-height:1.5}
+  .s5 .p .risk b{color:#ff6b8a;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;margin-right:6px;font-weight:600}
+
+  /* Slide 6 - sources */
+  .s6{padding:60px}
+  .s6 h2{font-size:32px;margin:6px 0 24px;letter-spacing:-0.01em}
+  .s6 .grid{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+  .s6 .col h3{font-size:10px;text-transform:uppercase;letter-spacing:0.18em;color:var(--ink3);margin:0 0 14px;font-weight:500}
+  .s6 .col ul{margin:0;padding:0;list-style:none}
+  .s6 .col li{font-size:12px;color:var(--ink2);margin-bottom:9px;padding-left:14px;position:relative;line-height:1.5}
+  .s6 .col li::before{content:"·";position:absolute;left:0;color:var(--ink3)}
+  .s6 .disc{position:absolute;bottom:80px;left:60px;right:60px;font-size:10px;color:var(--ink3);line-height:1.6;border-top:1px solid #1c2029;padding-top:16px}
+  .s6 .disc .url{color:#5ec2ff;font-family:ui-monospace,monospace;font-size:9.5px;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="page">Strategy deck mockup · 16:9 PPTX preview</h1>
+  <p class="lede">Example: Agentic Commerce Infrastructure · Large FI lens · scenario with 3 sliders moved · brief generated</p>
+
+  <!-- SLIDE 1: COVER -->
+  <div class="slide s1">
+    <div class="accent-bar"></div>
+    <div class="slide-num">01 / 06</div>
+    <div class="topnum">01</div>
+    <div class="kicker">Applied AI × Australian Payments</div>
+    <h1 class="grad">Agentic Commerce Infrastructure</h1>
+    <div class="lens"><span class="dot"></span> Strategy lens · Large Financial Institution</div>
+    <div class="meta">
+      <div><strong>Generated</strong> 09 Apr 2026 · <strong>Scenario intensity</strong> 38%</div>
+      <div style="margin-top:8px"><strong>Payments Strategy Scenario Engine</strong> · aussiepay.netlify.app</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: THE SCENARIO -->
+  <div class="slide s2">
+    <div class="accent-bar"></div>
+    <div class="slide-num">02 / 06</div>
+    <div class="label">The scenario</div>
+    <h2>Why this topic matters</h2>
+    <p class="hero">AI agents are about to transact on behalf of consumers at scale. Visa MPP, Mastercard CTF and Google AP2 already exist. The question is which Australian issuers move from "card on file" to "agent-ready credential" first, and who captures the new fee pools.</p>
+    <div class="briefs">
+      <div class="brief">
+        <div class="head"><span class="dot" style="background:#7cf2c8"></span>Opportunity</div>
+        <div class="quote opp">"First mover writes the dispute rules."</div>
+        <ul>
+          <li>Tokenisation fee capture on a brand new transaction class</li>
+          <li>Behavioural data on agent decisioning to fund underwriting</li>
+          <li>Set refund and dispute norms that lock in incumbent advantage</li>
+        </ul>
+      </div>
+      <div class="brief">
+        <div class="head"><span class="dot" style="background:#ff6b8a"></span>Problem</div>
+        <div class="quote prob">"Stranded at the back of the value chain."</div>
+        <ul>
+          <li>Fintechs intermediate the wallet layer and capture economics</li>
+          <li>One mishandled agent chargeback collapses consumer trust</li>
+          <li>Issuer brand relegated to a dumb funding source, no comeback</li>
+        </ul>
+      </div>
+      <div class="brief">
+        <div class="head"><span class="dot" style="background:#5ec2ff"></span>Context</div>
+        <div class="quote ctx">"The cement is still wet."</div>
+        <ul>
+          <li>Visa MPP live since 2025; Mastercard CTF in two-issuer pilot</li>
+          <li>Google AP2 specs landed late 2025; RBA review pending</li>
+          <li>18 to 24 month window before liability and rails fully lock</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer"><span>Payments Strategy Scenario Engine</span><span>Slide 02 · The scenario</span></div>
+  </div>
+
+  <!-- VARIANTS REMOVED - hybrid A+C is now slide 2 -->
+  <template>
+  <!-- VARIANT A — bullets -->
+  <div class="slide s2 vA">
+    <div class="accent-bar"></div>
+    <div class="variant-tag">Variant A · bullets</div>
+    <div class="slide-num">02 / 06</div>
+    <div class="label">The scenario</div>
+    <h2>Why this topic matters</h2>
+    <div class="briefs">
+      <div class="brief">
+        <div class="head"><span class="dot" style="background:#7cf2c8"></span>Opportunity</div>
+        <div class="thesis">First mover writes the dispute rules and captures the new fee pool.</div>
+        <ul>
+          <li>Tokenisation fee capture on a brand new transaction class</li>
+          <li>Behavioural data on agent decisioning that funds underwriting</li>
+          <li>Set dispute and refund norms that lock in incumbent advantage</li>
+        </ul>
+      </div>
+      <div class="brief">
+        <div class="head"><span class="dot" style="background:#ff6b8a"></span>Problem</div>
+        <div class="thesis">Issuers risk relegation to a dumb funding source.</div>
+        <ul>
+          <li>Fintechs intermediate the wallet layer, capture the economics</li>
+          <li>One mishandled agent chargeback can collapse consumer trust</li>
+          <li>Brand stranded at the back of the value chain, no comeback</li>
+        </ul>
+      </div>
+      <div class="brief">
+        <div class="head"><span class="dot" style="background:#5ec2ff"></span>Context</div>
+        <div class="thesis">The category locks in 18 to 24 months.</div>
+        <ul>
+          <li>Visa MPP live since 2025; Mastercard CTF in two-issuer pilot</li>
+          <li>Google AP2 specs landed late 2025; RBA review pending</li>
+          <li>Liability allocation still unsettled, infrastructure still wet cement</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer"><span>Payments Strategy Scenario Engine</span><span>Variant A · bullets</span></div>
+  </div>
+
+  <!-- VARIANT B — stat anchor -->
+  <div class="slide s2 vB">
+    <div class="accent-bar"></div>
+    <div class="variant-tag">Variant B · stat anchor</div>
+    <div class="slide-num">02 / 06</div>
+    <div class="label">The scenario</div>
+    <h2>Why this topic matters</h2>
+    <div class="briefs">
+      <div class="brief">
+        <div class="head"><span class="dot" style="background:#7cf2c8"></span>Opportunity</div>
+        <div class="stat opp">+58%</div>
+        <div class="statlbl">credentials agent-ready in your scenario</div>
+        <p>First-mover issuers can lock agent traffic into branded credentials, capturing tokenisation fees, behavioural data and the right to set dispute norms before fintechs intermediate.</p>
+      </div>
+      <div class="brief">
+        <div class="head"><span class="dot" style="background:#ff6b8a"></span>Problem</div>
+        <div class="stat prob">40%</div>
+        <div class="statlbl">of agent volume routed via fintechs today</div>
+        <p>Without dispute clarity and a clean MPP/CTF roadmap, issuers risk relegation to a dumb funding source while fintechs and wallets own the customer relationship.</p>
+      </div>
+      <div class="brief">
+        <div class="head"><span class="dot" style="background:#5ec2ff"></span>Context</div>
+        <div class="stat ctx">18-24<span style="font-size:22px;color:var(--ink3);font-weight:500;margin-left:6px">mo</span></div>
+        <div class="statlbl">window before the category locks</div>
+        <p>Visa MPP live since 2025, Mastercard CTF in pilot, Google AP2 specs landed late 2025. RBA has flagged but not yet ruled on agent-initiated transaction liability.</p>
+      </div>
+    </div>
+    <div class="footer"><span>Payments Strategy Scenario Engine</span><span>Variant B · stat anchor</span></div>
+  </div>
+
+  <!-- VARIANT C — pull-quote -->
+  <div class="slide s2 vC">
+    <div class="accent-bar"></div>
+    <div class="variant-tag">Variant C · pull-quote</div>
+    <div class="slide-num">02 / 06</div>
+    <div class="label">The scenario</div>
+    <h2>Why this topic matters</h2>
+    <div class="briefs">
+      <div class="brief">
+        <div class="head"><span class="dot" style="background:#7cf2c8"></span>Opportunity</div>
+        <div class="quote opp">"First mover writes the dispute rules."</div>
+        <p>Issuers who move now define the rails the rest of the market plugs into. The prize is tokenisation fees, agent-decisioning data and incumbent-friendly norms.</p>
+      </div>
+      <div class="brief">
+        <div class="head"><span class="dot" style="background:#ff6b8a"></span>Problem</div>
+        <div class="quote prob">"Stranded at the back of the value chain."</div>
+        <p>Without dispute clarity and a clean MPP/CTF roadmap, fintechs intermediate the wallet layer and capture the economics. One bad chargeback can collapse trust.</p>
+      </div>
+      <div class="brief">
+        <div class="head"><span class="dot" style="background:#5ec2ff"></span>Context</div>
+        <div class="quote ctx">"The cement is still wet."</div>
+        <p>Visa MPP live, Mastercard CTF in pilot, Google AP2 spec out, RBA review pending. The window where infrastructure choices are still negotiable closes inside two years.</p>
+      </div>
+    </div>
+    <div class="footer"><span>Payments Strategy Scenario Engine</span><span>Variant C · pull-quote</span></div>
+  </div>
+
+  <!-- VARIANT D — icon glyph -->
+  <div class="slide s2 vD">
+    <div class="accent-bar"></div>
+    <div class="variant-tag">Variant D · icon glyph</div>
+    <div class="slide-num">02 / 06</div>
+    <div class="label">The scenario</div>
+    <h2>Why this topic matters</h2>
+    <div class="briefs">
+      <div class="brief">
+        <div class="icon opp">↑</div>
+        <div class="head">Opportunity</div>
+        <div class="thesis">First mover writes the dispute rules and captures the new fee pool.</div>
+        <p>Tokenisation fees on a new transaction class, agent-decisioning data, and the right to set dispute norms. Move now or watch fintechs claim it.</p>
+      </div>
+      <div class="brief">
+        <div class="icon prob">!</div>
+        <div class="head">Problem</div>
+        <div class="thesis">Issuers risk relegation to a dumb funding source.</div>
+        <p>Fintechs intermediate the wallet layer; one mishandled agent chargeback collapses consumer trust. Brand stranded at the back of the value chain.</p>
+      </div>
+      <div class="brief">
+        <div class="icon ctx">⏱</div>
+        <div class="head">Context</div>
+        <div class="thesis">The category locks in 18 to 24 months.</div>
+        <p>Visa MPP live, Mastercard CTF in pilot, Google AP2 specs out, RBA review pending. Liability allocation still unsettled. Infrastructure still wet cement.</p>
+      </div>
+    </div>
+    <div class="footer"><span>Payments Strategy Scenario Engine</span><span>Variant D · icon glyph</span></div>
+  </div>
+  </template>
+
+  <!-- SLIDE 3: LEVERS -->
+  <div class="slide s3">
+    <div class="accent-bar"></div>
+    <div class="slide-num">03 / 06</div>
+    <div class="head-row">
+      <div>
+        <div class="label">Scenario variables</div>
+        <h2>Levers moved from baseline</h2>
+      </div>
+      <div class="intensity">
+        <div>
+          <div class="num">38%</div>
+          <div class="lbl">Scenario intensity</div>
+        </div>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr><th style="width:55%">Lever question</th><th style="text-align:right">Baseline</th><th style="text-align:right">Scenario</th><th style="text-align:right">Δ</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="q">How fast do issuers make their credentials work for AI agents?<span class="tn">% of issuer credentials agent-ready (MPP/CTF compatible)</span></td>
+          <td class="num">10%</td><td class="num">65%</td><td class="delta up">+58%</td>
+        </tr>
+        <tr>
+          <td class="q">How much of online shopping will AI agents handle?<span class="tn">% of e-commerce GMV initiated by an agent</span></td>
+          <td class="num">2%</td><td class="num">18%</td><td class="delta up">+16%</td>
+        </tr>
+        <tr>
+          <td class="q">How clear is the law when an agent buys on a consumer's behalf?<span class="tn">Dispute liability clarity index 0–100</span></td>
+          <td class="num">25</td><td class="num">55</td><td class="delta up">+38%</td>
+        </tr>
+        <tr>
+          <td class="q">How much agent spend gets routed through fintechs instead of banks?<span class="tn">% of agent volume intermediated by fintechs</span></td>
+          <td class="num">40%</td><td class="num">40%</td><td class="delta flat">—</td>
+        </tr>
+        <tr>
+          <td class="q">How aggressively do issuers and acquirers invest in applied AI?<span class="tn">Annual capex per top-5 player (AUD bn)</span></td>
+          <td class="num">2.5</td><td class="num">2.5</td><td class="delta flat">—</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="footer"><span>Payments Strategy Scenario Engine</span><span>Slide 03 · Variables</span></div>
+  </div>
+
+  <!-- SLIDE 4: OUTCOMES -->
+  <div class="slide s4">
+    <div class="accent-bar"></div>
+    <div class="slide-num">04 / 06</div>
+    <div class="label">Outcome surface</div>
+    <h2>How this reshapes your world</h2>
+    <div class="summary">
+      <div class="lab">AI inference · scenario interpretation</div>
+      <p>You've pushed three of five levers: aggressive credential readiness (+58%), a sharp lift in agent share (+16pp), and meaningfully clearer dispute law (+38%). That combination collapses the "Problem" framing and tilts the topic firmly toward "Opportunity": the legal overhang lifts exactly as issuer infrastructure becomes ready to absorb the demand spike. Fintech intermediation and capex held flat, so the upside accrues to incumbents rather than challengers.</p>
+    </div>
+    <div class="horizons">
+      <div class="h">
+        <div class="lab">Short term</div>
+        <div class="sub">0 to 12 months</div>
+        <div class="verdict">Favourable</div>
+        <div class="score good">+1.20</div>
+        <div class="scoresub">role-weighted net score</div>
+        <div class="movers">
+          <div class="m"><div class="lbl">Market share</div><div class="bar"><span style="left:50%;width:18%;background:linear-gradient(90deg,#7cf2c8,#5ec2ff)"></span></div><div class="v up">+0.72</div></div>
+          <div class="m"><div class="lbl">Cost base</div><div class="bar"><span style="left:36%;width:14%;background:linear-gradient(90deg,#ff6b8a,#ffb86b)"></span></div><div class="v down">−0.55</div></div>
+          <div class="m"><div class="lbl">Strategic optionality</div><div class="bar"><span style="left:50%;width:14%;background:linear-gradient(90deg,#7cf2c8,#5ec2ff)"></span></div><div class="v up">+0.55</div></div>
+          <div class="m"><div class="lbl">Revenue / margin</div><div class="bar"><span style="left:50%;width:12%;background:linear-gradient(90deg,#7cf2c8,#5ec2ff)"></span></div><div class="v up">+0.48</div></div>
+        </div>
+        <div class="commentary"><b>AI inference</b>Muted by design: token rollout takes 3 to 4 quarters to bind to real GMV, so the first-year score is mostly optionality and signalling. Cost base dips slightly as pilot spend front-loads.</div>
+      </div>
+      <div class="h">
+        <div class="lab">Medium term</div>
+        <div class="sub">1 to 3 years</div>
+        <div class="verdict">Strongly favourable</div>
+        <div class="score good">+3.40</div>
+        <div class="scoresub">role-weighted net score</div>
+        <div class="movers">
+          <div class="m"><div class="lbl">Market share</div><div class="bar"><span style="left:50%;width:32%;background:linear-gradient(90deg,#7cf2c8,#5ec2ff)"></span></div><div class="v up">+1.28</div></div>
+          <div class="m"><div class="lbl">Revenue / margin</div><div class="bar"><span style="left:50%;width:24%;background:linear-gradient(90deg,#7cf2c8,#5ec2ff)"></span></div><div class="v up">+0.96</div></div>
+          <div class="m"><div class="lbl">Strategic optionality</div><div class="bar"><span style="left:50%;width:22%;background:linear-gradient(90deg,#7cf2c8,#5ec2ff)"></span></div><div class="v up">+0.88</div></div>
+          <div class="m"><div class="lbl">Customer trust</div><div class="bar"><span style="left:50%;width:8%;background:linear-gradient(90deg,#7cf2c8,#5ec2ff)"></span></div><div class="v up">+0.32</div></div>
+        </div>
+        <div class="commentary"><b>AI inference</b>The sweet spot. Agent share compounds against a credential base that is now 65% ready; market share lifts hard while dispute clarity protects margin. This is the horizon where the strategic bet pays back.</div>
+      </div>
+      <div class="h">
+        <div class="lab">Long term</div>
+        <div class="sub">3 to 7 years</div>
+        <div class="verdict">Favourable</div>
+        <div class="score good">+2.10</div>
+        <div class="scoresub">role-weighted net score</div>
+        <div class="movers">
+          <div class="m"><div class="lbl">Market share</div><div class="bar"><span style="left:50%;width:20%;background:linear-gradient(90deg,#7cf2c8,#5ec2ff)"></span></div><div class="v up">+0.80</div></div>
+          <div class="m"><div class="lbl">Revenue / margin</div><div class="bar"><span style="left:50%;width:16%;background:linear-gradient(90deg,#7cf2c8,#5ec2ff)"></span></div><div class="v up">+0.65</div></div>
+          <div class="m"><div class="lbl">Cost base</div><div class="bar"><span style="left:42%;width:8%;background:linear-gradient(90deg,#ff6b8a,#ffb86b)"></span></div><div class="v down">−0.30</div></div>
+          <div class="m"><div class="lbl">Strategic optionality</div><div class="bar"><span style="left:50%;width:24%;background:linear-gradient(90deg,#7cf2c8,#5ec2ff)"></span></div><div class="v up">+0.95</div></div>
+        </div>
+        <div class="commentary"><b>AI inference</b>Score eases as the category commoditises and challenger issuers catch up on credential parity. The durable win is optionality and adjacent data revenue, not raw market share. Watch for fintech wallet capture in the back half.</div>
+      </div>
+    </div>
+    <div class="footer"><span>Payments Strategy Scenario Engine</span><span>Slide 04 · Outcomes</span></div>
+  </div>
+
+  <!-- SLIDE 5: PLAY -->
+  <div class="slide s5">
+    <div class="accent-bar"></div>
+    <div class="slide-num">05 / 06</div>
+    <div class="label">So what, your move</div>
+    <h2>The actionable play</h2>
+    <div class="plays">
+      <div class="p">
+        <div class="lab">Short term</div>
+        <div class="sub">0 to 12 months</div>
+        <div class="head">Stand up an agent-ready credential pilot before competitors define the category</div>
+        <ul>
+          <li>Join Visa MPP and Mastercard CTF pilot tracks within Q2; commit to 100k credentials live by Q4</li>
+          <li>Form an internal agent-commerce squad spanning product, risk and legal; report to ExCo monthly</li>
+          <li>Publish a public agent-transaction dispute policy ahead of the RBA, set the market frame</li>
+        </ul>
+        <div class="risk"><b>Risk</b>Pilot fatigue; investment without a clear revenue model in year one. Mitigate with hard go/no-go gates at month 6.</div>
+      </div>
+      <div class="p">
+        <div class="lab">Medium term</div>
+        <div class="sub">1 to 3 years</div>
+        <div class="head">Convert pilot into a defensible position as the agent-credential issuer of choice</div>
+        <ul>
+          <li>Migrate 60% of card-on-file relationships to agent-ready tokens via in-app prompts</li>
+          <li>License the credential SDK to mid-tier issuers; capture acquiring economics on their volume</li>
+          <li>Partner with a top-3 LLM provider for default-credential placement in Australian shopping flows</li>
+        </ul>
+        <div class="risk"><b>Risk</b>Fintech intermediation could still capture the wallet layer; counter with merchant rebate program.</div>
+      </div>
+      <div class="p">
+        <div class="lab">Long term</div>
+        <div class="sub">3 to 7 years</div>
+        <div class="head">Own the trust layer for agent commerce in Australia</div>
+        <ul>
+          <li>Position the credential as the ID + payment + dispute primitive for any agent transaction</li>
+          <li>Lobby for RBA-mandated agent-credential standards aligned to your existing implementation</li>
+          <li>Build cross-border agent-credential reciprocity with one APAC issuer to lock in network effects</li>
+        </ul>
+        <div class="risk"><b>Risk</b>Regulatory reset could commoditise credentials; hedge with adjacent data revenue streams.</div>
+      </div>
+    </div>
+    <div class="footer"><span>Generated by Grok grok-4-1-fast · Strategy starting point, not advice</span><span>Slide 05 · The play</span></div>
+  </div>
+
+  <!-- SLIDE 6: SOURCES -->
+  <div class="slide s6">
+    <div class="accent-bar"></div>
+    <div class="slide-num">06 / 06</div>
+    <div class="label">Anchors</div>
+    <h2>Sources &amp; disclaimer</h2>
+    <div class="grid">
+      <div class="col">
+        <h3>Public-data anchors</h3>
+        <ul>
+          <li>RBA Retail Payments Statistics (quarterly)</li>
+          <li>RBA Review of Retail Payments Regulation, 2026</li>
+          <li>AusPayNet device and tokenisation reporting</li>
+          <li>BIS Project Mandala briefings, 2024–2025</li>
+          <li>EU Interchange Fee Regulation impact studies</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3>Topic-specific (agentic)</h3>
+        <ul>
+          <li>Visa Merchant Payment Program (MPP) launch materials, 2025</li>
+          <li>Mastercard Commerce Token Framework (CTF), 2025</li>
+          <li>Google Agent Payments Protocol (AP2), 2025</li>
+          <li>Industry estimates on agent-initiated commerce share (2025–2026)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="disc">
+      <div><strong style="color:var(--ink2)">Disclaimer.</strong> Generated by the Payments Strategy Scenario Engine. The strategic brief is produced by an LLM (Grok grok-4-1-fast) from your scenario state and is a starting point for discussion, not professional advice. All quantitative anchors are public-source estimates. Use at your own discretion.</div>
+      <div style="margin-top:10px">Restore this exact scenario: <span class="url">aussiepay.netlify.app/#agentic/large_fi?token_ready=65&amp;agent_share=18&amp;dispute_clarity=55</span></div>
+    </div>
+    <div class="footer"><span>Payments Strategy Scenario Engine</span><span>Slide 06 · Sources</span></div>
+  </div>
+
+</div>
+</body>
+</html>
